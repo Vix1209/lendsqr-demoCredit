@@ -1,8 +1,87 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import compression from 'compression';
+import helmet from 'helmet';
+import {
+  createCorsOptions,
+  hasValidKey,
+  parseAllowedOrigins,
+} from 'utils/cors.utils';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log'],
+    rawBody: true,
+  });
+
+  // Set up versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
+  // CORS configuration
+  const allowedOriginsString = process.env.ALLOWED_ORIGINS || '';
+
+  const allowedOrigins = parseAllowedOrigins(allowedOriginsString);
+
+  // Set up CORS with our utility
+  app.enableCors(createCorsOptions(allowedOrigins, hasValidKey));
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  // Security middleware
+  app.use(helmet());
+  app.use(compression());
+
+  app.setGlobalPrefix('api');
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(process.env.APP_NAME || '')
+    .setDescription(process.env.APP_DESCRIPTION || '')
+    .setVersion(process.env.API_VERSION || '1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'JWT',
+    )
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'REFRESH_JWT',
+    )
+    .build();
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+    ignoreGlobalPrefix: false,
+  });
+
+  try {
+    SwaggerModule.setup('docs', app, swaggerDocument, {
+      customSiteTitle: process.env.CUSTOM_SITE_TITLE,
+      swaggerOptions: { persistAuthorization: true },
+      useGlobalPrefix: true,
+    });
+  } catch (error) {
+    Logger.error(`Error setting up Swagger: ${error}`, 'Bootstrap');
+  }
+
+  const port = process.env.PORT || 5000;
+
+  await app.listen(port);
+  const url = await app.getUrl();
+  console.log(`Demo Credit Server is running on: ${url}`);
+  console.log(`Documentation is available at: ${url}/api/docs`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('❌ Failed to bootstrap the application', err);
+  process.exit(1);
+});
