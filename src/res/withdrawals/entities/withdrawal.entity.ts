@@ -15,7 +15,7 @@ export type WithdrawalRow = {
   status: WithdrawalStatus;
   reference: string;
   destination: string;
-  transaction_id: string | null;
+  transaction_intent_id: string;
   created_at: Date;
   updated_at: Date;
 };
@@ -34,10 +34,8 @@ export type WithdrawalUpdate = Partial<
   updated_at?: Date;
 };
 
-export const buildWithdrawalsTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(WITHDRAWALS_TABLE, (table) => {
+export const buildWithdrawalsTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(WITHDRAWALS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('wallet_id', 50)
@@ -54,11 +52,11 @@ export const buildWithdrawalsTable = (
     table.string('reference').notNullable();
     table.string('destination').notNullable();
     table
-      .string('transaction_id', 50)
-      .nullable()
+      .string('transaction_intent_id', 50)
+      .notNullable()
       .references('id')
-      .inTable('transactions')
-      .onDelete('SET NULL')
+      .inTable('transaction_intents')
+      .onDelete('CASCADE')
       .onUpdate('CASCADE');
     table.timestamps(true, true);
   });

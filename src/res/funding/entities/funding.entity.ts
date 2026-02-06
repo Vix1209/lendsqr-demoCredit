@@ -15,7 +15,7 @@ export type FundingRow = {
   status: FundingStatus;
   reference: string;
   provider: string;
-  transaction_id: string | null;
+  transaction_intent_id: string;
   created_at: Date;
   updated_at: Date;
 };
@@ -31,10 +31,8 @@ export type FundingUpdate = Partial<
   updated_at?: Date;
 };
 
-export const buildFundingsTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(FUNDINGS_TABLE, (table) => {
+export const buildFundingsTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(FUNDINGS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('wallet_id', 50)
@@ -51,11 +49,11 @@ export const buildFundingsTable = (
     table.string('reference').notNullable();
     table.string('provider').notNullable();
     table
-      .string('transaction_id', 50)
-      .nullable()
+      .string('transaction_intent_id', 50)
+      .notNullable()
       .references('id')
-      .inTable('transactions')
-      .onDelete('SET NULL')
+      .inTable('transaction_intents')
+      .onDelete('CASCADE')
       .onUpdate('CASCADE');
     table.timestamps(true, true);
   });

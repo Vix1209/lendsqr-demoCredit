@@ -15,7 +15,7 @@ export type TransferRow = {
   amount: string;
   status: TransferStatus;
   reference: string;
-  transaction_id: string | null;
+  transaction_intent_id: string;
   created_at: Date;
   updated_at: Date;
 };
@@ -31,10 +31,8 @@ export type TransferUpdate = Partial<
   updated_at?: Date;
 };
 
-export const buildTransfersTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(TRANSFERS_TABLE, (table) => {
+export const buildTransfersTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(TRANSFERS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('sender_wallet_id', 50)
@@ -57,11 +55,11 @@ export const buildTransfersTable = (
       .defaultTo(TransferStatus.Pending);
     table.string('reference').notNullable();
     table
-      .string('transaction_id', 50)
-      .nullable()
+      .string('transaction_intent_id', 50)
+      .notNullable()
       .references('id')
-      .inTable('transactions')
-      .onDelete('SET NULL')
+      .inTable('transaction_intents')
+      .onDelete('CASCADE')
       .onUpdate('CASCADE');
     table.timestamps(true, true);
   });

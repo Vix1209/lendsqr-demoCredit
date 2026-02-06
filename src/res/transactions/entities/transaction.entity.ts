@@ -1,55 +1,57 @@
 import { Knex } from 'knex';
 
-export enum TransactionType {
+export enum TransactionIntentType {
   Funding = 'funding',
   Transfer = 'transfer',
   Withdrawal = 'withdrawal',
+  Repayment = 'repayment',
 }
 
-export enum TransactionDirection {
+export enum TransactionIntentDirection {
   Credit = 'credit',
   Debit = 'debit',
+  Internal = 'internal',
 }
 
-export enum TransactionStatus {
-  Pending = 'pending',
-  Success = 'success',
+export enum TransactionIntentStatus {
+  Created = 'created',
+  Processing = 'processing',
+  Settled = 'settled',
   Failed = 'failed',
 }
 
-export const TRANSACTIONS_TABLE = 'transactions';
+export const TRANSACTION_INTENTS_TABLE = 'transaction_intents';
 
-export type TransactionRow = {
+export type TransactionIntentRow = {
   id: string;
   wallet_id: string;
-  type: TransactionType;
-  direction: TransactionDirection;
+  type: TransactionIntentType;
+  direction: TransactionIntentDirection;
   amount: string;
-  status: TransactionStatus;
+  status: TransactionIntentStatus;
   reference: string;
+  idempotency_key: string;
   metadata: Record<string, unknown> | null;
   created_at: Date;
   updated_at: Date;
 };
 
-export type TransactionInsert = Omit<
-  TransactionRow,
+export type TransactionIntentInsert = Omit<
+  TransactionIntentRow,
   'created_at' | 'updated_at'
 > & {
   created_at?: Date;
   updated_at?: Date;
 };
 
-export type TransactionUpdate = Partial<
-  Omit<TransactionRow, 'id' | 'created_at' | 'updated_at'>
+export type TransactionIntentUpdate = Partial<
+  Omit<TransactionIntentRow, 'id' | 'created_at' | 'updated_at'>
 > & {
   updated_at?: Date;
 };
 
-export const buildTransactionsTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(TRANSACTIONS_TABLE, (table) => {
+export const buildTransactionIntentsTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(TRANSACTION_INTENTS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('wallet_id', 50)
@@ -58,14 +60,19 @@ export const buildTransactionsTable = (
       .inTable('wallets')
       .onDelete('CASCADE')
       .onUpdate('CASCADE');
-    table.enum('type', Object.values(TransactionType)).notNullable();
-    table.enum('direction', Object.values(TransactionDirection)).notNullable();
+    table.enum('type', Object.values(TransactionIntentType)).notNullable();
+    table
+      .enum('direction', Object.values(TransactionIntentDirection))
+      .notNullable();
     table.decimal('amount', 18, 2).notNullable();
     table
-      .enum('status', Object.values(TransactionStatus))
+      .enum('status', Object.values(TransactionIntentStatus))
       .notNullable()
-      .defaultTo(TransactionStatus.Pending);
+      .defaultTo(TransactionIntentStatus.Created);
     table.string('reference').notNullable();
+    table.string('idempotency_key').notNullable();
     table.json('metadata').nullable();
     table.timestamps(true, true);
+    table.unique(['reference']);
+    table.unique(['idempotency_key']);
   });

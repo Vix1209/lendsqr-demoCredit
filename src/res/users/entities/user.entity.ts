@@ -30,10 +30,8 @@ export type UserUpdate = Partial<
   updated_at?: Date;
 };
 
-export const buildUsersTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(USERS_TABLE, (table) => {
+export const buildUsersTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(USERS_TABLE, (table) => {
     table.string('id', 50).primary();
     table.string('email').notNullable().unique();
     table.string('first_name').notNullable();

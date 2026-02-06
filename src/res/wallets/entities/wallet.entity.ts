@@ -10,7 +10,6 @@ export const WALLETS_TABLE = 'wallets';
 export type WalletRow = {
   id: string;
   user_id: string;
-  balance: string;
   currency: string;
   status: WalletStatus;
   created_at: Date;
@@ -28,10 +27,8 @@ export type WalletUpdate = Partial<
   updated_at?: Date;
 };
 
-export const buildWalletsTable = (
-  schema: Knex.SchemaBuilder,
-): Knex.SchemaBuilder =>
-  schema.createTable(WALLETS_TABLE, (table) => {
+export const buildWalletsTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(WALLETS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('user_id', 50)
@@ -40,7 +37,6 @@ export const buildWalletsTable = (
       .inTable('users')
       .onDelete('CASCADE')
       .onUpdate('CASCADE');
-    table.decimal('balance', 18, 2).notNullable().defaultTo(0);
     table.string('currency').notNullable();
     table
       .enum('status', Object.values(WalletStatus))

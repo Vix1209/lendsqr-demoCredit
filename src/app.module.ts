@@ -8,6 +8,9 @@ import { TransfersModule } from './res/transfers/transfers.module';
 import { BlacklistModule } from './res/blacklist/blacklist.module';
 import { FundingModule } from './res/funding/funding.module';
 import { WithdrawalsModule } from './res/withdrawals/withdrawals.module';
+import { BalancesModule } from './res/balances/balances.module';
+import { IdempotencyKeysModule } from './res/idempotency-keys/idempotency-keys.module';
+import { LedgerEntriesModule } from './res/ledger-entries/ledger-entries.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { WithdrawalsModule } from './res/withdrawals/withdrawals.module';
     BlacklistModule,
     FundingModule,
     WithdrawalsModule,
+    BalancesModule,
+    IdempotencyKeysModule,
+    LedgerEntriesModule,
   ],
 })
 export class AppModule {}
