@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
+import { BLACKLISTS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum BlacklistStatus {
   Clear = 'clear',
   Blacklisted = 'blacklisted',
   Error = 'error',
 }
-
-export const BLACKLISTS_TABLE = 'blacklist_checks';
 
 export type BlacklistRow = {
   id: string;

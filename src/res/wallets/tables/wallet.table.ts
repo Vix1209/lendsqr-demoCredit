@@ -1,11 +1,10 @@
 import { Knex } from 'knex';
+import { WALLETS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum WalletStatus {
   Active = 'active',
   Locked = 'locked',
 }
-
-export const WALLETS_TABLE = 'wallets';
 
 export type WalletRow = {
   id: string;

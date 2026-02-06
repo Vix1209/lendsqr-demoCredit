@@ -9,4 +9,39 @@ export class DatabaseService {
   getDb() {
     return this.knex;
   }
+
+  async findOne(
+    tableName: string,
+    where: Record<string, unknown>,
+  ): Promise<any> {
+    const existingUser = await this.getDb()
+      .table(tableName)
+      .where(where)
+      .first();
+
+    return existingUser;
+  }
+
+  async findAll(tableName: string) {
+    return await this.getDb().table(tableName);
+  }
+
+  async insert<TRecord extends Record<string, unknown>>(
+    tableName: string,
+    data: TRecord | TRecord[],
+  ) {
+    return await this.getDb().table(tableName).insert(data);
+  }
+
+  async update<TRecord extends Record<string, unknown>>(
+    tableName: string,
+    where: Record<string, unknown>,
+    data: TRecord,
+  ) {
+    return await this.getDb().table(tableName).where(where).update(data);
+  }
+
+  async remove(tableName: string, where: Record<string, unknown>) {
+    return await this.getDb().table(tableName).where(where).delete();
+  }
 }

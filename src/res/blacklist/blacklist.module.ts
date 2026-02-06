@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { BlacklistService } from './blacklist.service';
-import { BlacklistController } from './blacklist.controller';
 
 @Module({
-  controllers: [BlacklistController],
+  imports: [HttpModule],
   providers: [BlacklistService],
+  exports: [BlacklistService],
 })
 export class BlacklistModule {}

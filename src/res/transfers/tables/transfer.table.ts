@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
+import { TRANSFERS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum TransferStatus {
   Pending = 'pending',
   Success = 'success',
   Failed = 'failed',
 }
-
-export const TRANSFERS_TABLE = 'transfers';
 
 export type TransferRow = {
   id: string;

@@ -1,41 +1,37 @@
 import { Knex } from 'knex';
+import { FUNDINGS_TABLE } from 'src/common/constants/table-names.constants';
 
-export enum WithdrawalStatus {
+export enum FundingStatus {
   Pending = 'pending',
   Success = 'success',
   Failed = 'failed',
 }
 
-export const WITHDRAWALS_TABLE = 'withdrawals';
-
-export type WithdrawalRow = {
+export type FundingRow = {
   id: string;
   wallet_id: string;
   amount: string;
-  status: WithdrawalStatus;
+  status: FundingStatus;
   reference: string;
-  destination: string;
+  provider: string;
   transaction_intent_id: string;
   created_at: Date;
   updated_at: Date;
 };
 
-export type WithdrawalInsert = Omit<
-  WithdrawalRow,
-  'created_at' | 'updated_at'
-> & {
+export type FundingInsert = Omit<FundingRow, 'created_at' | 'updated_at'> & {
   created_at?: Date;
   updated_at?: Date;
 };
 
-export type WithdrawalUpdate = Partial<
-  Omit<WithdrawalRow, 'id' | 'created_at' | 'updated_at'>
+export type FundingUpdate = Partial<
+  Omit<FundingRow, 'id' | 'created_at' | 'updated_at'>
 > & {
   updated_at?: Date;
 };
 
-export const buildWithdrawalsTable = (knex: Knex): Knex.SchemaBuilder =>
-  knex.schema.createTable(WITHDRAWALS_TABLE, (table) => {
+export const buildFundingsTable = (knex: Knex): Knex.SchemaBuilder =>
+  knex.schema.createTable(FUNDINGS_TABLE, (table) => {
     table.string('id', 50).primary();
     table
       .string('wallet_id', 50)
@@ -46,11 +42,11 @@ export const buildWithdrawalsTable = (knex: Knex): Knex.SchemaBuilder =>
       .onUpdate('CASCADE');
     table.decimal('amount', 18, 2).notNullable();
     table
-      .enum('status', Object.values(WithdrawalStatus))
+      .enum('status', Object.values(FundingStatus))
       .notNullable()
-      .defaultTo(WithdrawalStatus.Pending);
+      .defaultTo(FundingStatus.Pending);
     table.string('reference').notNullable();
-    table.string('destination').notNullable();
+    table.string('provider').notNullable();
     table
       .string('transaction_intent_id', 50)
       .notNullable()

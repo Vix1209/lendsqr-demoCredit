@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
+import { USERS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum UserStatus {
   Active = 'active',
   Inactive = 'inactive',
   Blacklisted = 'blacklisted',
 }
-
-export const USERS_TABLE = 'users';
 
 export type UserRow = {
   id: string;

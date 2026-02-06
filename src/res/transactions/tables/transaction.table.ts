@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import { TRANSACTION_INTENTS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum TransactionIntentType {
   Funding = 'funding',
@@ -19,8 +20,6 @@ export enum TransactionIntentStatus {
   Settled = 'settled',
   Failed = 'failed',
 }
-
-export const TRANSACTION_INTENTS_TABLE = 'transaction_intents';
 
 export type TransactionIntentRow = {
   id: string;

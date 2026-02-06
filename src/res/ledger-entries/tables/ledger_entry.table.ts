@@ -1,11 +1,10 @@
 import { Knex } from 'knex';
+import { LEDGER_ENTRIES_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum LedgerEntryType {
   Debit = 'debit',
   Credit = 'credit',
 }
-
-export const LEDGER_ENTRIES_TABLE = 'ledger_entries';
 
 export type LedgerEntryRow = {
   id: string;

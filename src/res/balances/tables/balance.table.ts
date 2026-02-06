@@ -1,6 +1,5 @@
 import { Knex } from 'knex';
-
-export const BALANCES_TABLE = 'balances';
+import { BALANCES_TABLE } from 'src/common/constants/table-names.constants';
 
 export type BalanceRow = {
   id: string;

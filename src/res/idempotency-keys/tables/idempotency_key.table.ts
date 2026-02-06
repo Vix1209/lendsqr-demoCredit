@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
+import { IDEMPOTENCY_KEYS_TABLE } from 'src/common/constants/table-names.constants';
 
 export enum IdempotencyStatus {
   Processing = 'processing',
   Success = 'success',
   Failed = 'failed',
 }
-
-export const IDEMPOTENCY_KEYS_TABLE = 'idempotency_keys';
 
 export type IdempotencyKeyRow = {
   id: string;

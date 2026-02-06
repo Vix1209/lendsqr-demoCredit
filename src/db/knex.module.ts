@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KnexModule } from 'nest-knexjs';
 import { Knex } from 'knex';
+import { DatabaseService } from './knex.service';
 
 const getEnvValue = (
   key: string,
@@ -49,5 +50,7 @@ export const buildKnexConfig = (configService?: ConfigService): Knex.Config => {
       inject: [ConfigService],
     }),
   ],
+  providers: [DatabaseService],
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}
