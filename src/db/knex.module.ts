@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import knex, { Knex } from 'knex';
-import { KnexService, KNEX_CONNECTION } from './knex.service';
+import { KnexModule } from 'nest-knexjs';
+import { Knex } from 'knex';
 
 const getEnvValue = (
   key: string,
@@ -39,18 +39,15 @@ export const buildKnexConfig = (configService?: ConfigService): Knex.Config => {
   };
 };
 
-const knexProvider = {
-  provide: KNEX_CONNECTION,
-  useFactory: (configService: ConfigService): Knex => {
-    const config = buildKnexConfig(configService);
-    return knex(config);
-  },
-  inject: [ConfigService],
-};
-
 @Global()
 @Module({
-  providers: [KnexService, knexProvider],
-  exports: [KnexService, knexProvider],
+  imports: [
+    KnexModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        config: buildKnexConfig(configService),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
 })
-export class KnexModule {}
+export class DatabaseModule {}

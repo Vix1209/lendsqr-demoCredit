@@ -7,7 +7,7 @@ import {
   createCorsOptions,
   hasValidKey,
   parseAllowedOrigins,
-} from 'utils/cors.utils';
+} from 'src/common/utils/cors.utils';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
