@@ -12,7 +12,6 @@ services:
     restart: unless-stopped
     networks:
       - lendsqr-network
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: lendsqr
       MYSQL_USER: lendsqr
@@ -26,7 +25,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          'mysqladmin ping -h 127.0.0.1 -u root -p$lendsqr_root_password --silent',
+          'mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD',
         ]
       interval: 5s
       timeout: 5s
