@@ -1,0 +1,54 @@
+networks:
+  lendsqr-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql-database
+    restart: unless-stopped
+    networks:
+      - lendsqr-network
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: lendsqr
+      MYSQL_USER: lendsqr
+      MYSQL_PASSWORD: lendsqr_password
+      MYSQL_ROOT_PASSWORD: lendsqr_root_password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'mysqladmin ping -h 127.0.0.1 -u root -p$lendsqr_root_password --silent',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  api:
+    build: .
+    restart: unless-stopped
+    container_name: api
+    networks:
+      - lendsqr-network
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DATABASE_URL=mysql://lendsqr:lendsqr_password@mysql:3306/lendsqr
+    volumes:
+      - ./.env:/app/.env:ro
+    ports:
+      - '5000:5000'
+    depends_on:
+      mysql:
+        condition: service_healthy
