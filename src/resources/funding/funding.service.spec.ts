@@ -68,7 +68,7 @@ const createMockDb = () => {
 };
 
 describe('FundingService', () => {
-  it('credits wallet and writes ledger entries on success', async () => {
+  it('creates a pending funding intent', async () => {
     const { dbService, records } = createMockDb();
     records[USERS_TABLE].push({
       id: 'user-1',
@@ -102,12 +102,10 @@ describe('FundingService', () => {
       idempotency_key: 'idem-1',
     });
 
-    expect(response.status).toBe('success');
-    expect(records[LEDGER_ENTRIES_TABLE]).toHaveLength(2);
-    const updatedBalance = records[BALANCES_TABLE].find(
-      (row) => row.wallet_id === 'wallet-1',
-    );
-    expect(updatedBalance?.available_balance).toBe('250.00');
+    expect(response.status).toBe('pending');
+    expect(records[TRANSACTION_INTENTS_TABLE]).toHaveLength(1);
+    expect(records[FUNDINGS_TABLE]).toHaveLength(1);
+    expect(records[LEDGER_ENTRIES_TABLE]).toHaveLength(0);
   });
 
   it('blocks funding when user is blacklisted', async () => {
@@ -141,7 +139,7 @@ describe('FundingService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
-  it('processes funding even when an idempotency record exists', async () => {
+  it('creates a pending funding intent even when an idempotency record exists', async () => {
     const { dbService, records } = createMockDb();
     records[USERS_TABLE].push({
       id: 'user-3',
@@ -179,7 +177,7 @@ describe('FundingService', () => {
       idempotency_key: 'idem-3',
     });
 
-    expect(response.status).toBe('success');
+    expect(response.status).toBe('pending');
     expect(response.amount).toBe('90.00');
   });
 });

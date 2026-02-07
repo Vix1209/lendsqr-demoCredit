@@ -7,5 +7,6 @@ import { BalancesController } from './balances.controller';
   imports: [DatabaseModule],
   controllers: [BalancesController],
   providers: [BalancesService],
+  exports: [BalancesService],
 })
 export class BalancesModule {}

@@ -17,7 +17,6 @@ export class FundingController {
     @IdempotencyId() idempotencyId: string,
   ) {
     createFundingDto.idempotency_key = idempotencyId;
-    console.log(createFundingDto);
     return this.fundingService.create(createFundingDto);
   }
 }

@@ -15,6 +15,7 @@ export enum TransactionIntentDirection {
 }
 
 export enum TransactionIntentStatus {
+  Pending = 'pending',
   Created = 'created',
   Processing = 'processing',
   Settled = 'settled',
@@ -67,7 +68,7 @@ export const buildTransactionIntentsTable = (knex: Knex): Knex.SchemaBuilder =>
     table
       .enum('status', Object.values(TransactionIntentStatus))
       .notNullable()
-      .defaultTo(TransactionIntentStatus.Created);
+      .defaultTo(TransactionIntentStatus.Pending);
     table.string('reference').notNullable();
     table.string('idempotency_key').notNullable();
     table.json('metadata').nullable();

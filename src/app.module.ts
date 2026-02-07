@@ -9,6 +9,9 @@ import { WithdrawalsModule } from './resources/withdrawals/withdrawals.module';
 import { BalancesModule } from './resources/balances/balances.module';
 import { IdempotencyKeysModule } from './resources/idempotency-keys/idempotency-keys.module';
 import { AuditLogsModule } from './resources/audit-logs/audit-logs.module';
+import { TransactionModule } from './resources/transaction/transaction.module';
+import { LedgerEntriesModule } from './resources/ledger-entries/ledger-entries.module';
+import { ExecutionAttemptsModule } from './resources/execution-attempts/execution-attempts.module';
 
 @Module({
   imports: [
@@ -21,11 +24,14 @@ import { AuditLogsModule } from './resources/audit-logs/audit-logs.module';
     UsersModule,
     BalancesModule,
     IdempotencyKeysModule,
+    TransactionModule,
     FundingModule,
     TransfersModule,
     WithdrawalsModule,
     BlacklistModule,
     AuditLogsModule,
+    LedgerEntriesModule,
+    ExecutionAttemptsModule,
   ],
 })
 export class AppModule {}

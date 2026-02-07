@@ -10,6 +10,8 @@ export const IDEMPOTENCY_KEYS_TABLE = 'idempotency_keys';
 
 export const LEDGER_ENTRIES_TABLE = 'ledger_entries';
 
+export const EXECUTION_ATTEMPTS_TABLE = 'execution_attempts';
+
 export const TRANSACTION_INTENTS_TABLE = 'transaction_intents';
 
 export const TRANSFERS_TABLE = 'transfers';

@@ -38,7 +38,7 @@ export class CreateWithdrawalResponseDto {
   @ApiProperty({ example: '75.00' })
   amount: string;
 
-  @ApiProperty({ example: 'success' })
+  @ApiProperty({ example: 'pending' })
   status: string;
 
   @ApiProperty({ example: 'WDR_REF-abc123' })

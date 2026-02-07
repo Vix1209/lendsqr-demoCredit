@@ -38,7 +38,7 @@ export class CreateFundingResponseDto {
   @ApiProperty({ example: '250.00' })
   amount: string;
 
-  @ApiProperty({ example: 'success' })
+  @ApiProperty({ example: 'pending' })
   status: string;
 
   @ApiProperty({ example: 'FND_REF-abc123' })

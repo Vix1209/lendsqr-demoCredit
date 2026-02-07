@@ -43,7 +43,7 @@ export class CreateTransferResponseDto {
   @ApiProperty({ example: '150.00' })
   amount: string;
 
-  @ApiProperty({ example: 'success' })
+  @ApiProperty({ example: 'pending' })
   status: string;
 
   @ApiProperty({ example: 'TRF_REF-abc123' })
