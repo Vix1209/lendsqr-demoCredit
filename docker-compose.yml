@@ -26,7 +26,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          'mysqladmin ping -h 127.0.0.1 -u root -p$lendsqr_root_password --silent',
+          'mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD',
         ]
       interval: 5s
       timeout: 5s
