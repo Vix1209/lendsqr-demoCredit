@@ -76,10 +76,10 @@ async function bootstrap() {
   });
 
   try {
-    SwaggerModule.setup('docs', app, swaggerDocument, {
+    SwaggerModule.setup('', app, swaggerDocument, {
       customSiteTitle: process.env.CUSTOM_SITE_TITLE,
       swaggerOptions: { persistAuthorization: true },
-      useGlobalPrefix: true,
+      useGlobalPrefix: false,
     });
   } catch (error) {
     Logger.error(`Error setting up Swagger: ${error}`, 'Bootstrap');
@@ -92,7 +92,7 @@ async function bootstrap() {
   await app.listen(port);
   const url = await app.getUrl();
   console.log(`Demo Credit Server is running on: ${url}`);
-  console.log(`Documentation is available at: ${url}/api/docs`);
+  console.log(`Documentation is available at: ${url}/`);
 }
 
 bootstrap().catch((err) => {
