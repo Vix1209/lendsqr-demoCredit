@@ -90,6 +90,12 @@ This service implements a wallet and transaction-intent workflow for the Demo Cr
 - Idempotent routes store request hashes and responses in idempotency_keys.
 - Duplicate requests return the first response without reprocessing.
 
+### Faux Authentication (Optional)
+
+- POST /auth/token issues a short-lived JWT using JWT_SECRET_KEY.
+- Send the token on protected routes using x-authorization-token.
+- The AuthGuard is available but intentionally not applied to any endpoints, so reviewers can freely explore the API without authentication.
+
 ## API Routes
 
 - POST /users

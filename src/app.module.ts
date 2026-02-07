@@ -12,6 +12,7 @@ import { AuditLogsModule } from './resources/audit-logs/audit-logs.module';
 import { TransactionModule } from './resources/transaction/transaction.module';
 import { LedgerEntriesModule } from './resources/ledger-entries/ledger-entries.module';
 import { ExecutionAttemptsModule } from './resources/execution-attempts/execution-attempts.module';
+import { AuthModule } from './resources/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ExecutionAttemptsModule } from './resources/execution-attempts/executio
     }),
     DatabaseModule,
     UsersModule,
+    AuthModule,
     BalancesModule,
     IdempotencyKeysModule,
     TransactionModule,

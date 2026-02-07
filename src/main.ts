@@ -12,6 +12,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { seedDefaultUser } from './common/utils/seed.utils';
 import { IDEMPOTENCY_ID_HEADER } from 'src/common/constants/idempotency.constant';
+import { AUTH_HEADER } from 'src/common/constants/auth.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -57,16 +58,16 @@ async function bootstrap() {
         type: 'apiKey',
         name: IDEMPOTENCY_ID_HEADER,
         in: 'header',
-        description: `
-          Prevents duplicate transaction execution.
-          
-          • Required for POST requests that create/execute monetary intents  
-          • Same key + same request = same response  
-          • Replays are safely deduplicated  
-          • Keys expire after a defined TTL
-      `,
       },
       IDEMPOTENCY_ID_HEADER,
+    )
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: AUTH_HEADER,
+        in: 'header',
+      },
+      AUTH_HEADER,
     )
     .build();
 

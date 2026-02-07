@@ -20,8 +20,6 @@ export function ListLedgerEntriesDocs() {
       required: false,
       example: 'TXN_INTENT-abc123',
     }),
-    ApiQuery({ name: 'from_date', required: false, example: '2026-02-01' }),
-    ApiQuery({ name: 'to_date', required: false, example: '2026-02-07' }),
     ApiQuery({ name: 'limit', required: false, example: 50 }),
     ApiQuery({ name: 'offset', required: false, example: 0 }),
     ApiBadRequestResponse({ description: 'Validation failed' }),

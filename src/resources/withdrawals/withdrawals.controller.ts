@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { Idempotent } from 'src/common/decorators/idempotent.decorator';
+import { Idempotent } from 'src/common/decorators/idempotency/idempotent.decorator';
 import { WithdrawalsService } from './withdrawals.service';
 import {
   CreateWithdrawalDto,
@@ -9,7 +9,7 @@ import {
   CreateWithdrawalDocs,
   WithdrawalHistoryDocs,
 } from './docs/withdrawal.docs';
-import { IdempotencyId } from 'src/common/decorators/idempotency-id.decorator';
+import { IdempotencyId } from 'src/common/decorators/idempotency/idempotency-id.decorator';
 
 @Controller('withdrawals')
 export class WithdrawalsController {

@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { Idempotent } from 'src/common/decorators/idempotent.decorator';
+import { Idempotent } from 'src/common/decorators/idempotency/idempotent.decorator';
 import { TransfersService } from './transfers.service';
 import {
   CreateTransferDto,
   TransferHistoryQueryDto,
 } from './dto/create-transfer.dto';
 import { CreateTransferDocs, TransferHistoryDocs } from './docs/transfer.docs';
-import { IdempotencyId } from 'src/common/decorators/idempotency-id.decorator';
+import { IdempotencyId } from 'src/common/decorators/idempotency/idempotency-id.decorator';
 
 @Controller('transfers')
 export class TransfersController {

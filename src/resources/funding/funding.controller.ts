@@ -1,12 +1,12 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
-import { Idempotent } from 'src/common/decorators/idempotent.decorator';
+import { Idempotent } from 'src/common/decorators/idempotency/idempotent.decorator';
 import { FundingService } from './funding.service';
 import {
   CreateFundingDto,
   FundingHistoryQueryDto,
 } from './dto/create-funding.dto';
 import { CreateFundingDocs, FundingHistoryDocs } from './docs/funding.docs';
-import { IdempotencyId } from 'src/common/decorators/idempotency-id.decorator';
+import { IdempotencyId } from 'src/common/decorators/idempotency/idempotency-id.decorator';
 
 @Controller('funding')
 export class FundingController {
