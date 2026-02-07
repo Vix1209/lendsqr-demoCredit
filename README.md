@@ -315,20 +315,3 @@ pnpm test
 pnpm test:e2e
 pnpm test:cov
 ```
-
-## Deployment
-
-Deploy to a public URL using the required format:
-
-```
-https://<candidate-name>-lendsqr-be-test.<cloud-platform-domain>
-```
-
-## Submission Checklist
-
-- Public GitHub repository link
-- Deployed API URL
-- Design/documentation page with rationale
-- Loom video (≤ 3 minutes, face visible)
-- Google Form submission
-- Email confirmation to careers@lendsqr.com
