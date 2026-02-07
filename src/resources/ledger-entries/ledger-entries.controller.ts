@@ -23,8 +23,6 @@ export class LedgerEntriesController {
     @Query('txn_intent_id') txnIntentId?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
-    @Query('from_date') fromDate?: string,
-    @Query('to_date') toDate?: string,
   ) {
     const parsedLimit = limit ? Number(limit) : 50;
     const parsedOffset = offset ? Number(offset) : 0;
@@ -37,11 +35,6 @@ export class LedgerEntriesController {
       throw new BadRequestException('offset must be a non-negative number');
     }
 
-    const parsedFromDate = fromDate
-      ? this.parseDate(fromDate, 'from_date')
-      : undefined;
-    const parsedToDate = toDate ? this.parseDate(toDate, 'to_date') : undefined;
-
     const filters = [walletId, userId, txnIntentId].filter(Boolean);
     if (filters.length > 1) {
       throw new BadRequestException(
@@ -53,8 +46,6 @@ export class LedgerEntriesController {
       return this.ledgerEntriesService.findByWallet(walletId, {
         limit: parsedLimit,
         offset: parsedOffset,
-        fromDate: parsedFromDate,
-        toDate: parsedToDate,
       });
     }
 
@@ -62,8 +53,6 @@ export class LedgerEntriesController {
       return this.ledgerEntriesService.findByUser(userId, {
         limit: parsedLimit,
         offset: parsedOffset,
-        fromDate: parsedFromDate,
-        toDate: parsedToDate,
       });
     }
 
@@ -71,8 +60,6 @@ export class LedgerEntriesController {
       return this.ledgerEntriesService.findByTxnIntent(txnIntentId, {
         limit: parsedLimit,
         offset: parsedOffset,
-        fromDate: parsedFromDate,
-        toDate: parsedToDate,
       });
     }
 
@@ -86,13 +73,5 @@ export class LedgerEntriesController {
   @GetLedgerEntryDocs()
   get(@Param('ledger_id') ledgerId: string) {
     return this.ledgerEntriesService.findById(ledgerId);
-  }
-
-  private parseDate(value: string, label: string) {
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      throw new BadRequestException(`${label} must be a valid date`);
-    }
-    return parsed;
   }
 }

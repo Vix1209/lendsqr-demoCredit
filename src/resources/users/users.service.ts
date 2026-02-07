@@ -129,15 +129,32 @@ export class UsersService {
 
     const dataQuery = baseQuery
       .clone()
+      .leftJoin(WALLETS_TABLE, `${USERS_TABLE}.id`, `${WALLETS_TABLE}.user_id`)
+      .leftJoin(
+        BALANCES_TABLE,
+        `${WALLETS_TABLE}.id`,
+        `${BALANCES_TABLE}.wallet_id`,
+      )
       .select([
-        'id',
-        'email',
-        'first_name',
-        'last_name',
-        'phone_number',
-        'status',
-        'created_at',
-        'updated_at',
+        `${USERS_TABLE}.id as id`,
+        `${USERS_TABLE}.email as email`,
+        `${USERS_TABLE}.first_name as first_name`,
+        `${USERS_TABLE}.last_name as last_name`,
+        `${USERS_TABLE}.phone_number as phone_number`,
+        `${USERS_TABLE}.status as status`,
+        `${USERS_TABLE}.created_at as created_at`,
+        `${USERS_TABLE}.updated_at as updated_at`,
+        `${WALLETS_TABLE}.id as wallet_id`,
+        `${WALLETS_TABLE}.currency as wallet_currency`,
+        `${WALLETS_TABLE}.account_details as wallet_account_details`,
+        `${WALLETS_TABLE}.status as wallet_status`,
+        `${WALLETS_TABLE}.created_at as wallet_created_at`,
+        `${WALLETS_TABLE}.updated_at as wallet_updated_at`,
+        `${BALANCES_TABLE}.id as balance_id`,
+        `${BALANCES_TABLE}.available_balance as balance_available`,
+        `${BALANCES_TABLE}.pending_balance as balance_pending`,
+        `${BALANCES_TABLE}.created_at as balance_created_at`,
+        `${BALANCES_TABLE}.updated_at as balance_updated_at`,
       ])
       .offset(offset)
       .limit(limit);
@@ -147,7 +164,37 @@ export class UsersService {
     }
     dataQuery.orderBy('created_at', 'desc');
 
-    const data = await dataQuery;
+    const rows = await dataQuery;
+    const data = rows.map((row) => ({
+      id: row.id,
+      email: row.email,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      phone_number: row.phone_number,
+      status: row.status,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      wallet: row.wallet_id
+        ? {
+            id: row.wallet_id,
+            currency: row.wallet_currency,
+            account_details: row.wallet_account_details,
+            status: row.wallet_status,
+            created_at: row.wallet_created_at,
+            updated_at: row.wallet_updated_at,
+            balance: row.balance_id
+              ? {
+                  id: row.balance_id,
+                  wallet_id: row.wallet_id,
+                  available_balance: row.balance_available,
+                  pending_balance: row.balance_pending,
+                  created_at: row.balance_created_at,
+                  updated_at: row.balance_updated_at,
+                }
+              : null,
+          }
+        : null,
+    }));
     const pages =
       limit > 0 ? Math.ceil(totalValue / limit) : totalValue > 0 ? 1 : 0;
 
@@ -163,21 +210,72 @@ export class UsersService {
   }
 
   async get(id: string) {
-    const user = await this.knex.findOne(USERS_TABLE, { id }, [
-      'id',
-      'email',
-      'first_name',
-      'last_name',
-      'phone_number',
-      'status',
-      'created_at',
-      'updated_at',
-    ]);
+    const row = await this.knex
+      .getDb()
+      .table(USERS_TABLE)
+      .leftJoin(WALLETS_TABLE, `${USERS_TABLE}.id`, `${WALLETS_TABLE}.user_id`)
+      .leftJoin(
+        BALANCES_TABLE,
+        `${WALLETS_TABLE}.id`,
+        `${BALANCES_TABLE}.wallet_id`,
+      )
+      .select([
+        `${USERS_TABLE}.id as id`,
+        `${USERS_TABLE}.email as email`,
+        `${USERS_TABLE}.first_name as first_name`,
+        `${USERS_TABLE}.last_name as last_name`,
+        `${USERS_TABLE}.phone_number as phone_number`,
+        `${USERS_TABLE}.status as status`,
+        `${USERS_TABLE}.created_at as created_at`,
+        `${USERS_TABLE}.updated_at as updated_at`,
+        `${WALLETS_TABLE}.id as wallet_id`,
+        `${WALLETS_TABLE}.currency as wallet_currency`,
+        `${WALLETS_TABLE}.account_details as wallet_account_details`,
+        `${WALLETS_TABLE}.status as wallet_status`,
+        `${WALLETS_TABLE}.created_at as wallet_created_at`,
+        `${WALLETS_TABLE}.updated_at as wallet_updated_at`,
+        `${BALANCES_TABLE}.id as balance_id`,
+        `${BALANCES_TABLE}.available_balance as balance_available`,
+        `${BALANCES_TABLE}.pending_balance as balance_pending`,
+        `${BALANCES_TABLE}.created_at as balance_created_at`,
+        `${BALANCES_TABLE}.updated_at as balance_updated_at`,
+      ])
+      .where(`${USERS_TABLE}.id`, id)
+      .first();
 
-    if (!user) {
+    if (!row) {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      id: row.id,
+      email: row.email,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      phone_number: row.phone_number,
+      status: row.status,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      wallet: row.wallet_id
+        ? {
+            id: row.wallet_id,
+            currency: row.wallet_currency,
+            account_details: row.wallet_account_details,
+            status: row.wallet_status,
+            created_at: row.wallet_created_at,
+            updated_at: row.wallet_updated_at,
+            balance: row.balance_id
+              ? {
+                  id: row.balance_id,
+                  wallet_id: row.wallet_id,
+                  available_balance: row.balance_available,
+                  pending_balance: row.balance_pending,
+                  created_at: row.balance_created_at,
+                  updated_at: row.balance_updated_at,
+                }
+              : null,
+          }
+        : null,
+    };
   }
 }

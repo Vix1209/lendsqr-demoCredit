@@ -30,6 +30,7 @@ export type AuditLogRow = {
   actor_type: AuditActorType;
   actor_id: string | null;
   metadata: Record<string, unknown> | null;
+  remark: string | null;
   created_at: Date;
 };
 
@@ -46,6 +47,7 @@ export const buildAuditLogsTable = (knex: Knex): Knex.SchemaBuilder =>
     table.enum('actor_type', Object.values(AuditActorType)).notNullable();
     table.string('actor_id', 100).nullable();
     table.json('metadata').nullable();
+    table.string('remark', 500).nullable();
     table
       .timestamp('created_at', { useTz: true })
       .defaultTo(knex.raw('CURRENT_TIMESTAMP'));

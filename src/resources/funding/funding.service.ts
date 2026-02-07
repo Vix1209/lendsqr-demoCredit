@@ -26,7 +26,10 @@ import {
 } from 'src/tables/transaction.table';
 import { FundingStatus } from '../../tables/funding.table';
 import { UserStatus } from 'src/tables/user.table';
-import { CreateFundingDto } from './dto/create-funding.dto';
+import {
+  CreateFundingDto,
+  FundingHistoryQueryDto,
+} from './dto/create-funding.dto';
 
 @Injectable()
 export class FundingService {
@@ -111,5 +114,34 @@ export class FundingService {
     });
 
     return response;
+  }
+
+  async history(query: FundingHistoryQueryDto) {
+    const dataQuery = this.knex
+      .getDb()
+      .table(FUNDINGS_TABLE)
+      .select([
+        'id',
+        'wallet_id',
+        'amount',
+        'status',
+        'reference',
+        'provider',
+        'transaction_intent_id',
+        'created_at',
+        'updated_at',
+      ]);
+
+    if (query.status) {
+      dataQuery.where('status', query.status);
+    }
+    if (query.wallet_id) {
+      dataQuery.where('wallet_id', query.wallet_id);
+    }
+    if (query.reference) {
+      dataQuery.where('reference', query.reference);
+    }
+
+    return dataQuery.orderBy('created_at', 'desc');
   }
 }

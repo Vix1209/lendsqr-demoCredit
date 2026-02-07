@@ -22,8 +22,7 @@ export class AuditLogsService {
     action?: AuditAction;
     actor_type?: AuditActorType;
     actor_id?: string;
-    fromDate?: Date;
-    toDate?: Date;
+
     limit: number;
     offset: number;
   }) {
@@ -44,12 +43,6 @@ export class AuditLogsService {
     if (input.actor_id) {
       query.where('actor_id', input.actor_id);
     }
-    if (input.fromDate) {
-      query.where('created_at', '>=', input.fromDate);
-    }
-    if (input.toDate) {
-      query.where('created_at', '<=', input.toDate);
-    }
 
     return query
       .orderBy('created_at', 'desc')
@@ -65,6 +58,7 @@ export class AuditLogsService {
     const data: AuditLogInsert = {
       id: generateId(ID_PREFIX_AUDIT),
       ...input,
+      remark: input.remark ?? this.buildRemarkFromInput(input),
     };
 
     if (trx) {
@@ -82,7 +76,7 @@ export class AuditLogsService {
     action: AuditAction;
     metadata?: Record<string, unknown> | null;
   }): Omit<AuditLogInsert, 'id'> {
-    return {
+    const data: Omit<AuditLogInsert, 'id' | 'remark'> = {
       entity_type: input.entity_type,
       entity_id: input.entity_id,
       action: input.action,
@@ -90,5 +84,80 @@ export class AuditLogsService {
       actor_id: null,
       metadata: input.metadata ?? null,
     };
+    return {
+      ...data,
+      remark: this.buildRemarkFromInput({ ...data, remark: '' }),
+    };
+  }
+
+  private buildRemarkFromInput(input: Omit<AuditLogInsert, 'id'>) {
+    const metadata = input.metadata ?? {};
+    const amount = this.valueAsString(metadata.amount);
+    const walletId = this.valueAsString(metadata.wallet_id);
+    const reference = this.valueAsString(metadata.reference);
+    const entryType = this.valueAsString(metadata.entry_type);
+    const reason = this.valueAsString(metadata.reason);
+    const senderWalletId = this.valueAsString(metadata.sender_wallet_id);
+    const receiverWalletId = this.valueAsString(metadata.receiver_wallet_id);
+    const ledgerEntryIds = this.valueAsArray(metadata.ledger_entry_ids);
+    const availableBefore = this.valueAsString(
+      metadata.available_balance_before,
+    );
+    const availableAfter = this.valueAsString(metadata.available_balance_after);
+    const change = this.valueAsString(metadata.change);
+
+    if (input.action === AuditAction.CreateIntent) {
+      if (senderWalletId && receiverWalletId) {
+        return `Created transfer intent from ${senderWalletId} to ${receiverWalletId} for ${amount ?? 'unknown amount'} with reference ${reference ?? 'N/A'}.`;
+      }
+      if (walletId) {
+        return `Created transaction intent for wallet ${walletId} for ${amount ?? 'unknown amount'} with reference ${reference ?? 'N/A'}.`;
+      }
+      return `Created transaction intent ${input.entity_id}.`;
+    }
+
+    if (input.action === AuditAction.SettleTxn) {
+      const ledgerPart = ledgerEntryIds.length
+        ? ` Ledger entries: ${ledgerEntryIds.join(', ')}.`
+        : '';
+      return `Settled transaction intent ${input.entity_id} for ${amount ?? 'unknown amount'} with reference ${reference ?? 'N/A'}.${ledgerPart}`;
+    }
+
+    if (input.action === AuditAction.TxnFailed) {
+      const reasonPart = reason ? ` Reason: ${reason}.` : '';
+      return `Transaction intent ${input.entity_id} failed.${reasonPart}`;
+    }
+
+    if (input.action === AuditAction.CreateLedgerEntry) {
+      const typePart = entryType ? `${entryType} ` : '';
+      const walletPart = walletId ? ` for wallet ${walletId}` : '';
+      return `Created ${typePart}ledger entry${walletPart} amount ${amount ?? 'unknown amount'}.`;
+    }
+
+    if (input.action === AuditAction.UpdateBalance) {
+      const walletPart = walletId ? ` for wallet ${walletId}` : '';
+      const rangePart =
+        availableBefore && availableAfter
+          ? ` from ${availableBefore} to ${availableAfter}`
+          : '';
+      const changePart = change ? ` (change ${change})` : '';
+      return `Updated balance${walletPart}${rangePart}${changePart}.`;
+    }
+
+    return `Recorded audit log ${input.entity_id}.`;
+  }
+
+  private valueAsString(value: unknown) {
+    if (value === null || value === undefined) return undefined;
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    return undefined;
+  }
+
+  private valueAsArray(value: unknown) {
+    if (!Array.isArray(value)) return [];
+    return value
+      .map((item) => this.valueAsString(item))
+      .filter(Boolean) as string[];
   }
 }

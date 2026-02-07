@@ -30,6 +30,12 @@ export class AuditLogDto {
   })
   metadata?: Record<string, unknown> | null;
 
+  @ApiPropertyOptional({
+    example:
+      'Created transaction intent for wallet WAL-123 for 250.00 with reference FND_REF-abc.',
+  })
+  remark?: string;
+
   @ApiProperty({ example: '2026-02-07T10:00:00.000Z' })
   created_at: Date;
 }

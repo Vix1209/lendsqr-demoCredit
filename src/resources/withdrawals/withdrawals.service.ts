@@ -25,7 +25,10 @@ import {
   TransactionIntentType,
 } from 'src/tables/transaction.table';
 import { UserStatus } from 'src/tables/user.table';
-import { CreateWithdrawalDto } from './dto/create-withdrawal.dto';
+import {
+  CreateWithdrawalDto,
+  WithdrawalHistoryQueryDto,
+} from './dto/create-withdrawal.dto';
 import { WithdrawalStatus } from '../../tables/withdrawal.table';
 
 @Injectable()
@@ -41,7 +44,17 @@ export class WithdrawalsService {
       throw new BadRequestException('Amount must be greater than zero');
     }
 
-    await this.assertWalletAllowed(createWithdrawalDto.wallet_id);
+    const wallet = await this.assertWalletAllowed(
+      createWithdrawalDto.wallet_id,
+    );
+    const destinationDetails =
+      createWithdrawalDto.destination ??
+      this.resolveDestinationDetailsFromWallet(wallet.account_details);
+    if (!destinationDetails) {
+      throw new BadRequestException('Destination is required');
+    }
+    const destinationReference =
+      this.formatDestinationReference(destinationDetails);
 
     const reference = generateId(ID_PREFIX_WITHDRAWAL_REFERENCE);
     const transactionIntentId = generateId(ID_PREFIX_TRANSACTION_INTENT);
@@ -58,7 +71,7 @@ export class WithdrawalsService {
         status: TransactionIntentStatus.Pending,
         reference,
         idempotency_key: createWithdrawalDto.idempotency_key,
-        metadata: { destination: createWithdrawalDto.destination },
+        metadata: { destination: destinationDetails },
       });
 
       await this.auditLogsService.createLog(
@@ -70,7 +83,7 @@ export class WithdrawalsService {
             amount: amountValue,
             reference,
             wallet_id: createWithdrawalDto.wallet_id,
-            destination: createWithdrawalDto.destination,
+            destination: destinationDetails,
           },
         }),
         trx,
@@ -82,7 +95,7 @@ export class WithdrawalsService {
         amount: amountValue,
         status: WithdrawalStatus.Pending,
         reference,
-        destination: createWithdrawalDto.destination,
+        destination: destinationReference,
         transaction_intent_id: transactionIntentId,
       });
       return {
@@ -92,11 +105,39 @@ export class WithdrawalsService {
         amount: amountValue,
         status: WithdrawalStatus.Pending,
         reference,
-        destination: createWithdrawalDto.destination,
+        destination: destinationDetails,
       };
     });
 
     return response;
+  }
+
+  async history(query: WithdrawalHistoryQueryDto) {
+    const dataQuery = this.knex
+      .getDb()
+      .table(WITHDRAWALS_TABLE)
+      .select([
+        'id',
+        'wallet_id',
+        'amount',
+        'status',
+        'reference',
+        'destination',
+        'transaction_intent_id',
+        'created_at',
+        'updated_at',
+      ]);
+
+    if (query.status) {
+      dataQuery.where('status', query.status);
+    }
+    if (query.wallet_id) {
+      dataQuery.where('wallet_id', query.wallet_id);
+    }
+    if (query.reference) {
+      dataQuery.where('reference', query.reference);
+    }
+    return dataQuery.orderBy('created_at', 'desc');
   }
 
   private async assertWalletAllowed(walletId: string) {
@@ -112,5 +153,28 @@ export class WithdrawalsService {
       throw new ForbiddenException('User is blacklisted');
     }
     return wallet;
+  }
+
+  private resolveDestinationDetailsFromWallet(
+    accountDetails: {
+      bank_account_number?: string;
+      bank_code?: string;
+    } | null,
+  ) {
+    if (!accountDetails) return null;
+    const accountNumber = accountDetails.bank_account_number?.trim();
+    const bankCode = accountDetails.bank_code?.trim();
+    if (!accountNumber || !bankCode) return null;
+    return {
+      bank_account_number: accountNumber,
+      bank_code: bankCode,
+    };
+  }
+
+  private formatDestinationReference(destination: {
+    bank_account_number: string;
+    bank_code: string;
+  }) {
+    return `bank:${destination.bank_code}:${destination.bank_account_number}`;
   }
 }

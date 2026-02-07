@@ -46,13 +46,6 @@ export class LedgerEntriesService {
       .table(LEDGER_ENTRIES_TABLE)
       .where('wallet_id', walletId);
 
-    if (input.fromDate) {
-      query.where('created_at', '>=', input.fromDate);
-    }
-    if (input.toDate) {
-      query.where('created_at', '<=', input.toDate);
-    }
-
     return query
       .orderBy('created_at', 'desc')
       .limit(input.limit)
@@ -74,13 +67,6 @@ export class LedgerEntriesService {
       .select([`${LEDGER_ENTRIES_TABLE}.*`])
       .where(`${WALLETS_TABLE}.user_id`, userId);
 
-    if (input.fromDate) {
-      query.where(`${LEDGER_ENTRIES_TABLE}.created_at`, '>=', input.fromDate);
-    }
-    if (input.toDate) {
-      query.where(`${LEDGER_ENTRIES_TABLE}.created_at`, '<=', input.toDate);
-    }
-
     return query
       .orderBy(`${LEDGER_ENTRIES_TABLE}.created_at`, 'desc')
       .limit(input.limit)
@@ -95,13 +81,6 @@ export class LedgerEntriesService {
       .getDb()
       .table(LEDGER_ENTRIES_TABLE)
       .where('transaction_intent_id', txnIntentId);
-
-    if (input.fromDate) {
-      query.where('created_at', '>=', input.fromDate);
-    }
-    if (input.toDate) {
-      query.where('created_at', '<=', input.toDate);
-    }
 
     return query
       .orderBy('created_at', 'desc')

@@ -26,8 +26,6 @@ export class AuditLogsController {
     @Query('action') action?: AuditAction,
     @Query('actor_type') actorType?: AuditActorType,
     @Query('actor_id') actorId?: string,
-    @Query('from_date') fromDate?: string,
-    @Query('to_date') toDate?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
@@ -42,19 +40,12 @@ export class AuditLogsController {
       throw new BadRequestException('offset must be a non-negative number');
     }
 
-    const parsedFromDate = fromDate
-      ? this.parseDate(fromDate, 'from_date')
-      : undefined;
-    const parsedToDate = toDate ? this.parseDate(toDate, 'to_date') : undefined;
-
     return this.auditLogsService.list({
       entity_type: entityType,
       entity_id: entityId,
       action,
       actor_type: actorType,
       actor_id: actorId,
-      fromDate: parsedFromDate,
-      toDate: parsedToDate,
       limit: parsedLimit,
       offset: parsedOffset,
     });

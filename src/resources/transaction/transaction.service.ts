@@ -55,9 +55,15 @@ export class TransactionService {
     if (input.type === TransactionExecutionType.Transfer) {
       return this.executeTransfer(input.transaction_intent_id);
     }
-    return this.executeWithdrawal(input.transaction_intent_id);
+    if (input.type === TransactionExecutionType.Withdrawal) {
+      return this.executeWithdrawal(input.transaction_intent_id);
+    }
+    throw new BadRequestException('Invalid transaction execution type');
   }
 
+  // --------------------------------------------------------------------
+  // Execute Funding Method
+  // --------------------------------------------------------------------
   private async executeFunding(transactionIntentId: string) {
     return this.knex.getDb().transaction(async (trx) => {
       const intent = await trx
@@ -298,6 +304,9 @@ export class TransactionService {
     });
   }
 
+  // --------------------------------------------------------------------
+  // Execute Transfer Method
+  // --------------------------------------------------------------------
   private async executeTransfer(transactionIntentId: string) {
     return this.knex.getDb().transaction(async (trx) => {
       const intent = await trx
@@ -529,6 +538,9 @@ export class TransactionService {
     });
   }
 
+  // --------------------------------------------------------------------
+  // Execute Withdrawal Method
+  // --------------------------------------------------------------------
   private async executeWithdrawal(transactionIntentId: string) {
     return this.knex.getDb().transaction(async (trx) => {
       const intent = await trx
@@ -754,6 +766,10 @@ export class TransactionService {
     });
   }
 
+  // ------------------------------------------------------------------------------
+  // Process Funding Method: Will Sync with External payment processor later which
+  // will be called to decide success/failure based on the response
+  // ------------------------------------------------------------------------------
   private processFunding(provider: string) {
     if (provider === 'fail') {
       return { success: false };
@@ -761,6 +777,9 @@ export class TransactionService {
     return { success: true };
   }
 
+  // ------------------------------------------------------------------------------
+  // Assert Wallet Allowed Method: Will check if wallet is active and user is not blacklisted
+  // ------------------------------------------------------------------------------
   private async assertWalletAllowed(trx: any, walletId: string) {
     const wallet = await trx
       .table(WALLETS_TABLE)
@@ -782,6 +801,10 @@ export class TransactionService {
     return wallet;
   }
 
+  // ------------------------------------------------------------------------------
+  // Get or Create Clearing Wallet Method: Will create a clearing wallet if it does not exist
+  // Used for Withdrawal and Transfer
+  // ------------------------------------------------------------------------------
   private async getOrCreateClearingWallet(trx: any, currency: string) {
     let user = await trx
       .table(USERS_TABLE)
@@ -825,6 +848,9 @@ export class TransactionService {
     return wallet.id as string;
   }
 
+  // ------------------------------------------------------------------------------
+  // Get or Create Balance Method: Will create a balance if it does not exist, ONLY IF THE WALLET EXISTS
+  // ------------------------------------------------------------------------------
   private async getOrCreateBalance(trx: any, walletId: string) {
     let balance = await trx
       .table(BALANCES_TABLE)
