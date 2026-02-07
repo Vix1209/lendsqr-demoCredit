@@ -2,7 +2,7 @@
 // If the header is not present or is empty, undefined is returned
 
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IDEMPOTENCY_ID_HEADER } from '../constants/idempotency.constant';
+import { IDEMPOTENCY_ID_HEADER } from 'src/common/constants/idempotency.constant';
 
 function normalizeHeaderValue(value: unknown): string | undefined {
   if (typeof value === 'string') return value.trim() || undefined;
