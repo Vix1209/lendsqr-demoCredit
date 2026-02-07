@@ -1,3 +1,6 @@
+// This decorator is used to extract the idempotency id from the request headers
+// If the header is not present or is empty, undefined is returned
+
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IDEMPOTENCY_ID_HEADER } from '../constants/idempotency.constant';
 

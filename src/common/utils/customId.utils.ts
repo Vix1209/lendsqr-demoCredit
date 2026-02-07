@@ -1,3 +1,5 @@
+// This function generates a unique and random id with the given prefix
+
 export function generateId(prefix: string) {
   const chars =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
