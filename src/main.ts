@@ -10,6 +10,7 @@ import {
 } from 'src/common/utils/cors.utils';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { seedDefaultUser } from './common/utils/seed.utils';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -50,13 +51,21 @@ async function bootstrap() {
     .setTitle(process.env.APP_NAME || '')
     .setDescription(process.env.APP_DESCRIPTION || '')
     .setVersion(process.env.API_VERSION || '1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'JWT',
-    )
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'REFRESH_JWT',
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'Idempotency-Key',
+        in: 'header',
+        description: `
+          Prevents duplicate transaction execution.
+          
+          • Required for POST requests that create/execute monetary intents  
+          • Same key + same request = same response  
+          • Replays are safely deduplicated  
+          • Keys expire after a defined TTL
+      `,
+      },
+      'Idempotency-Key',
     )
     .build();
 
@@ -74,6 +83,8 @@ async function bootstrap() {
     Logger.error(`Error setting up Swagger: ${error}`, 'Bootstrap');
   }
 
+  await seedDefaultUser(app);
+
   const port = process.env.PORT || 5000;
 
   await app.listen(port);
@@ -81,6 +92,7 @@ async function bootstrap() {
   console.log(`Demo Credit Server is running on: ${url}`);
   console.log(`Documentation is available at: ${url}/api/docs`);
 }
+
 bootstrap().catch((err) => {
   console.error('❌ Failed to bootstrap the application', err);
   process.exit(1);

@@ -1,5 +1,7 @@
 export const BALANCES_TABLE = 'balances';
 
+export const AUDIT_LOGS_TABLE = 'audit_logs';
+
 export const BLACKLISTS_TABLE = 'blacklist_checks';
 
 export const FUNDINGS_TABLE = 'fundings';

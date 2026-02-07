@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './db/knex.module';
-import { UsersModule } from './res/users/users.module';
-// import { WalletsModule } from './res/wallets/wallets.module';
-// import { TransactionsModule } from './res/transactions/transactions.module';
-// import { TransfersModule } from './res/transfers/transfers.module';
-// import { BlacklistModule } from './res/blacklist/blacklist.module';
-// import { FundingModule } from './res/funding/funding.module';
-// import { WithdrawalsModule } from './res/withdrawals/withdrawals.module';
-// import { BalancesModule } from './res/balances/balances.module';
-// import { IdempotencyKeysModule } from './res/idempotency-keys/idempotency-keys.module';
-// import { LedgerEntriesModule } from './res/ledger-entries/ledger-entries.module';
+import { DatabaseModule } from './database/knex.module';
+import { UsersModule } from './resources/users/users.module';
+import { TransactionsModule } from './resources/transactions/transactions.module';
+import { TransfersModule } from './resources/transfers/transfers.module';
+import { BlacklistModule } from './resources/blacklist/blacklist.module';
+import { FundingModule } from './resources/funding/funding.module';
+import { WithdrawalsModule } from './resources/withdrawals/withdrawals.module';
+import { BalancesModule } from './resources/balances/balances.module';
+import { IdempotencyKeysModule } from './resources/idempotency-keys/idempotency-keys.module';
+import { AuditLogsModule } from './resources/audit-logs/audit-logs.module';
 
 @Module({
   imports: [
@@ -21,15 +20,14 @@ import { UsersModule } from './res/users/users.module';
     }),
     DatabaseModule,
     UsersModule,
-    // WalletsModule,
-    // TransactionsModule,
-    // TransfersModule,
-    // BlacklistModule,
-    // FundingModule,
-    // WithdrawalsModule,
-    // BalancesModule,
-    // IdempotencyKeysModule,
-    // LedgerEntriesModule,
+    BalancesModule,
+    IdempotencyKeysModule,
+    FundingModule,
+    TransfersModule,
+    WithdrawalsModule,
+    BlacklistModule,
+    AuditLogsModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}
