@@ -36,7 +36,9 @@ export class CreateUserDto {
   @ApiPropertyOptional({
     example: "{bank_account_number: '0123456789', bank_code: '016'}",
   })
-  account_details: AccountDetails;
+  @IsOptional()
+  @Type(() => AccountDetails)
+  account_details?: AccountDetails;
 
   @ApiPropertyOptional({ example: 'NGN' })
   @IsOptional()

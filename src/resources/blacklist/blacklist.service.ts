@@ -55,7 +55,6 @@ export class BlacklistService {
     const url = `${baseUrl.replace(/\/$/, '')}/verification/karma/${encodeURIComponent(
       identity,
     )}`;
-    console.log('url', url);
 
     try {
       const response = await firstValueFrom(
@@ -66,7 +65,7 @@ export class BlacklistService {
         }),
       );
       const payload = response.data;
-      console.log('payload', payload);
+
       if (!payload) {
         return {
           status: 'error',
