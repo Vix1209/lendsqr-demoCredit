@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBody,
+  // ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -11,7 +11,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import {
-  CreateTransferDto,
+  // CreateTransferDto,
   CreateTransferResponseDto,
   TransferHistoryItemDto,
 } from '../dto/create-transfer.dto';
@@ -20,7 +20,6 @@ import { TransferStatus } from '../../../tables/transfer.table';
 export function CreateTransferDocs() {
   return applyDecorators(
     ApiOperation({ summary: 'Create a transfer' }),
-    ApiBody({ type: CreateTransferDto }),
     ApiCreatedResponse({ type: CreateTransferResponseDto }),
     ApiBadRequestResponse({ description: 'Validation failed' }),
     ApiForbiddenResponse({ description: 'User is blacklisted' }),

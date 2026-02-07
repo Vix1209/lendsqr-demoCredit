@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/knex.module';
 import { UsersModule } from './resources/users/users.module';
-import { TransactionsModule } from './resources/transactions/transactions.module';
 import { TransfersModule } from './resources/transfers/transfers.module';
 import { BlacklistModule } from './resources/blacklist/blacklist.module';
 import { FundingModule } from './resources/funding/funding.module';
@@ -27,7 +26,6 @@ import { AuditLogsModule } from './resources/audit-logs/audit-logs.module';
     WithdrawalsModule,
     BlacklistModule,
     AuditLogsModule,
-    TransactionsModule,
   ],
 })
 export class AppModule {}

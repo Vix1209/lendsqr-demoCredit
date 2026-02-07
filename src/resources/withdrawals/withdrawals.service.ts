@@ -14,6 +14,15 @@ import {
   WITHDRAWALS_TABLE,
 } from 'src/common/constants/table-names.constants';
 import { generateId } from 'src/common/utils/customId.utils';
+import {
+  ID_PREFIX_BALANCE,
+  ID_PREFIX_LEDGER,
+  ID_PREFIX_TRANSACTION_INTENT,
+  ID_PREFIX_USER,
+  ID_PREFIX_WALLET,
+  ID_PREFIX_WITHDRAWAL,
+  ID_PREFIX_WITHDRAWAL_REFERENCE,
+} from 'src/common/constants/id-prefix.constants';
 import { AuditAction, EntityType } from 'src/tables/audit_log.table';
 import { AuditLogsService } from 'src/resources/audit-logs/audit-logs.service';
 import { LedgerEntryType } from 'src/tables/ledger_entry.table';
@@ -46,9 +55,9 @@ export class WithdrawalsService {
       createWithdrawalDto.wallet_id,
     );
 
-    const reference = generateId('WDR_REF');
-    const transactionIntentId = generateId('TXN_INTENT');
-    const withdrawalId = generateId('WDR');
+    const reference = generateId(ID_PREFIX_WITHDRAWAL_REFERENCE);
+    const transactionIntentId = generateId(ID_PREFIX_TRANSACTION_INTENT);
+    const withdrawalId = generateId(ID_PREFIX_WITHDRAWAL);
     const amountValue = amount.toFixed(2);
 
     const response = await this.knex.getDb().transaction(async (trx) => {
@@ -155,8 +164,8 @@ export class WithdrawalsService {
         (clearingBefore + amount).toFixed(2),
       );
 
-      const debitEntryId = generateId('LEDGER');
-      const creditEntryId = generateId('LEDGER');
+      const debitEntryId = generateId(ID_PREFIX_LEDGER);
+      const creditEntryId = generateId(ID_PREFIX_LEDGER);
 
       await trx.table(LEDGER_ENTRIES_TABLE).insert([
         {
@@ -310,7 +319,7 @@ export class WithdrawalsService {
       .where({ email: this.clearingEmail })
       .first();
     if (!user) {
-      const userId = generateId('USER');
+      const userId = generateId(ID_PREFIX_USER);
       await trx.table(USERS_TABLE).insert({
         id: userId,
         email: this.clearingEmail,
@@ -327,7 +336,7 @@ export class WithdrawalsService {
       .where({ user_id: user.id, currency })
       .first();
     if (!wallet) {
-      const walletId = generateId('wal');
+      const walletId = generateId(ID_PREFIX_WALLET);
       await trx.table(WALLETS_TABLE).insert({
         id: walletId,
         user_id: user.id,
@@ -336,7 +345,7 @@ export class WithdrawalsService {
         status: WalletStatus.Active,
       });
       await trx.table(BALANCES_TABLE).insert({
-        id: generateId('bal'),
+        id: generateId(ID_PREFIX_BALANCE),
         wallet_id: walletId,
         available_balance: '0.00',
         pending_balance: '0.00',
@@ -353,7 +362,7 @@ export class WithdrawalsService {
       .where({ wallet_id: walletId })
       .first();
     if (!balance) {
-      const balanceId = generateId('bal');
+      const balanceId = generateId(ID_PREFIX_BALANCE);
       await trx.table(BALANCES_TABLE).insert({
         id: balanceId,
         wallet_id: walletId,

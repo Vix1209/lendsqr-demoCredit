@@ -12,6 +12,12 @@ import {
   USERS_TABLE,
   WALLETS_TABLE,
 } from 'src/common/constants/table-names.constants';
+import {
+  ID_PREFIX_BALANCE,
+  ID_PREFIX_BLACKLIST,
+  ID_PREFIX_USER,
+  ID_PREFIX_WALLET,
+} from 'src/common/constants/id-prefix.constants';
 import { UserStatus } from '../../tables/user.table';
 import { WalletStatus } from '../../tables/wallet.table';
 import { CreateUserDto, ListUsersQueryDto } from './dto/create-user.dto';
@@ -33,8 +39,8 @@ export class UsersService {
       throw new ForbiddenException('Email already exists');
     }
 
-    const userId = generateId('USER');
-    const blacklistId = generateId('BLVK_LIST');
+    const userId = generateId(ID_PREFIX_USER);
+    const blacklistId = generateId(ID_PREFIX_BLACKLIST);
 
     const { status: blacklistStatus, payload: blacklistPayload } =
       await this.blacklistService.checkKarmaByBvn(createUserDto.bvn);
@@ -67,8 +73,8 @@ export class UsersService {
       });
 
       if (blacklistStatus === BlacklistStatus.Clear) {
-        walletId = generateId('wal');
-        const balanceId = generateId('bal');
+        walletId = generateId(ID_PREFIX_WALLET);
+        const balanceId = generateId(ID_PREFIX_BALANCE);
 
         await this.knex.insert(WALLETS_TABLE, {
           id: walletId,

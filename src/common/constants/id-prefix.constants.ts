@@ -1,0 +1,15 @@
+export const ID_PREFIX_IDEMPOTENCY_RECORD = 'IDEMPOTENCY';
+export const ID_PREFIX_AUDIT = 'AUDIT';
+export const ID_PREFIX_IDEMPOTENCY_KEY = 'KEY';
+export const ID_PREFIX_USER = 'USER';
+export const ID_PREFIX_BLACKLIST = 'BLVK_LIST';
+export const ID_PREFIX_WALLET = 'WAL';
+export const ID_PREFIX_BALANCE = 'BAL';
+export const ID_PREFIX_FUNDING_REFERENCE = 'FND_REF';
+export const ID_PREFIX_TRANSACTION_INTENT = 'TXN_INTENT';
+export const ID_PREFIX_FUNDING = 'FND';
+export const ID_PREFIX_LEDGER = 'LEDGER';
+export const ID_PREFIX_TRANSFER_REFERENCE = 'TRF_REF';
+export const ID_PREFIX_TRANSFER = 'TRF';
+export const ID_PREFIX_WITHDRAWAL_REFERENCE = 'WDR_REF';
+export const ID_PREFIX_WITHDRAWAL = 'WDR';

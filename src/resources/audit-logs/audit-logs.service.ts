@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Knex } from 'knex';
 import { AUDIT_LOGS_TABLE } from 'src/common/constants/table-names.constants';
 import { generateId } from 'src/common/utils/customId.utils';
+import { ID_PREFIX_AUDIT } from 'src/common/constants/id-prefix.constants';
 import { DatabaseService } from 'src/database/knex.service';
 import {
   AuditAction,
@@ -16,7 +17,7 @@ export class AuditLogsService {
 
   async createLog(input: Omit<AuditLogInsert, 'id'>, trx?: Knex.Transaction) {
     const data: AuditLogInsert = {
-      id: generateId('AUDIT'),
+      id: generateId(ID_PREFIX_AUDIT),
       ...input,
     };
 

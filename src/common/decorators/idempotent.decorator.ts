@@ -4,21 +4,18 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiHeader } from '@nestjs/swagger';
-import {
-  IdempotencyGuard,
-  IDEMPOTENCY_REQUIRED,
-} from 'src/common/guards/idempotency.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { IdempotencyGuard } from 'src/common/guards/idempotency.guard';
 import { IdempotencyInterceptor } from 'src/common/interceptors/idempotency.interceptor';
+import {
+  IDEMPOTENCY_ID_HEADER,
+  IDEMPOTENCY_REQUIRED_METADATA,
+} from 'src/common/constants/idempotency.constant';
 
 export const Idempotent = () =>
   applyDecorators(
-    SetMetadata(IDEMPOTENCY_REQUIRED, true),
+    SetMetadata(IDEMPOTENCY_REQUIRED_METADATA, true),
     UseGuards(IdempotencyGuard),
     UseInterceptors(IdempotencyInterceptor),
-    ApiHeader({
-      name: 'Idempotency-Key',
-      required: true,
-      description: 'Prevents duplicate processing of the same request',
-    }),
+    ApiBearerAuth(IDEMPOTENCY_ID_HEADER),
   );

@@ -23,10 +23,8 @@ export class CreateTransferDto {
   @IsNumberString()
   amount: string;
 
-  @ApiProperty({ example: 'idem-abc123' })
-  @IsString()
-  @IsNotEmpty()
-  idempotency_key: string;
+  @IsOptional()
+  idempotency_key?: string;
 }
 
 export class CreateTransferResponseDto {

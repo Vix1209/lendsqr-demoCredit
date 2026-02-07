@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { IDEMPOTENCY_KEYS_TABLE } from 'src/common/constants/table-names.constants';
 import { generateId } from 'src/common/utils/customId.utils';
+import {
+  ID_PREFIX_IDEMPOTENCY_KEY,
+  ID_PREFIX_IDEMPOTENCY_RECORD,
+} from 'src/common/constants/id-prefix.constants';
+import { IDEMPOTENCY_BODY_KEY } from 'src/common/constants/idempotency.constant';
 import { DatabaseService } from 'src/database/knex.service';
 import {
   IdempotencyKeyInsert,
@@ -15,10 +20,10 @@ export class IdempotencyKeysService {
   constructor(private readonly knex: DatabaseService) {}
 
   async generateKey() {
-    let idempotencyKey = generateId('IDEMPOTENCY_KEY');
+    let idempotencyKey = generateId(ID_PREFIX_IDEMPOTENCY_KEY);
     let exists = await this.findByKey(idempotencyKey);
     while (exists) {
-      idempotencyKey = generateId('IDEMPOTENCY_KEY');
+      idempotencyKey = generateId(ID_PREFIX_IDEMPOTENCY_KEY);
       exists = await this.findByKey(idempotencyKey);
     }
     return idempotencyKey;
@@ -26,7 +31,7 @@ export class IdempotencyKeysService {
 
   async findByKey(key: string): Promise<IdempotencyKeyRow | null> {
     return this.knex.findOne(IDEMPOTENCY_KEYS_TABLE, {
-      idempotency_key: key,
+      [IDEMPOTENCY_BODY_KEY]: key,
     });
   }
 
@@ -38,7 +43,7 @@ export class IdempotencyKeysService {
   async updateByKey(key: string, update: IdempotencyKeyUpdate) {
     return this.knex.update(
       IDEMPOTENCY_KEYS_TABLE,
-      { idempotency_key: key },
+      { [IDEMPOTENCY_BODY_KEY]: key },
       update,
     );
   }
@@ -48,7 +53,7 @@ export class IdempotencyKeysService {
     request_hash: string;
   }) {
     return this.create({
-      id: generateId('IDEMPOTENCY'),
+      id: generateId(ID_PREFIX_IDEMPOTENCY_RECORD),
       idempotency_key: input.idempotency_key,
       request_hash: input.request_hash,
       status: IdempotencyStatus.Processing,
@@ -78,7 +83,7 @@ export class IdempotencyKeysService {
     }
 
     await this.create({
-      id: generateId('IDEMPOTENCY'),
+      id: generateId(ID_PREFIX_IDEMPOTENCY_RECORD),
       idempotency_key: input.idempotency_key,
       request_hash: input.request_hash || '',
       status: IdempotencyStatus.Success,

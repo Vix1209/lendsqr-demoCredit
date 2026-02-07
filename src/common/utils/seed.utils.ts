@@ -9,6 +9,11 @@ import { generateId } from './customId.utils';
 import { DatabaseService } from 'src/database/knex.service';
 import { UserStatus } from 'src/tables/user.table';
 import { WalletStatus } from 'src/tables/wallet.table';
+import {
+  ID_PREFIX_BALANCE,
+  ID_PREFIX_USER,
+  ID_PREFIX_WALLET,
+} from '../constants/id-prefix.constants';
 
 export async function seedDefaultUser(app: NestExpressApplication) {
   const knex = app.get(DatabaseService);
@@ -22,9 +27,9 @@ export async function seedDefaultUser(app: NestExpressApplication) {
         continue;
       }
 
-      const userId = generateId('USER');
-      const walletId = generateId('WAL');
-      const balanceId = generateId('BAL');
+      const userId = generateId(ID_PREFIX_USER);
+      const walletId = generateId(ID_PREFIX_WALLET);
+      const balanceId = generateId(ID_PREFIX_BALANCE);
 
       await trx.table(USERS_TABLE).insert({
         id: userId,

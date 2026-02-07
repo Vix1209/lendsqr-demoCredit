@@ -8,8 +8,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { IdempotencyKeysService } from 'src/resources/idempotency-keys/idempotency-keys.service';
 import { IdempotencyStatus } from 'src/tables/idempotency_key.table';
-
-export const IDEMPOTENCY_REQUIRED = 'idempotency_required';
+import {
+  IDEMPOTENCY_BODY_KEY,
+  IDEMPOTENCY_ID_HEADER,
+  IDEMPOTENCY_REQUIRED_METADATA,
+} from '../constants/idempotency.constant';
+import { Request } from 'express';
 
 @Injectable()
 export class IdempotencyGuard implements CanActivate {
@@ -20,17 +24,19 @@ export class IdempotencyGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const required = this.reflector.getAllAndOverride<boolean>(
-      IDEMPOTENCY_REQUIRED,
+      IDEMPOTENCY_REQUIRED_METADATA,
       [context.getHandler(), context.getClass()],
     );
     if (!required) {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const idempotencyKey = this.resolveIdempotencyKey(request);
     if (!idempotencyKey) {
-      throw new BadRequestException('Idempotency-Key header is required');
+      throw new BadRequestException(
+        `${IDEMPOTENCY_ID_HEADER} header is required`,
+      );
     }
 
     const requestHash = this.idempotencyKeysService.buildRequestHash({
@@ -57,7 +63,8 @@ export class IdempotencyGuard implements CanActivate {
       ) {
         throw new ConflictException('Request is already processing');
       }
-      request.idempotencyRecord = existingKey;
+      (request as { idempotencyRecord?: unknown }).idempotencyRecord =
+        existingKey;
     } else {
       await this.idempotencyKeysService.createProcessing({
         idempotency_key: idempotencyKey,
@@ -65,15 +72,26 @@ export class IdempotencyGuard implements CanActivate {
       });
     }
 
-    request.idempotencyKey = idempotencyKey;
-    request.idempotencyRequestHash = requestHash;
+    (request as { idempotencyKey?: string }).idempotencyKey = idempotencyKey;
+    (request as { idempotencyRequestHash?: string }).idempotencyRequestHash =
+      requestHash;
     return true;
   }
 
-  private resolveIdempotencyKey(request: any): string | undefined {
-    const headerKey =
-      request.headers?.['idempotency-key'] ??
-      request.headers?.['x-idempotency-key'];
-    return headerKey ?? request.body?.idempotency_key;
+  private resolveIdempotencyKey(request: Request): string | undefined {
+    const headerKey = request.headers?.[IDEMPOTENCY_ID_HEADER];
+    return (
+      this.normalizeHeaderValue(headerKey) ??
+      request.body?.[IDEMPOTENCY_BODY_KEY]
+    );
+  }
+
+  private normalizeHeaderValue(value: unknown): string | undefined {
+    if (typeof value === 'string') return value.trim() || undefined;
+    if (Array.isArray(value)) {
+      const first = (value as string[])[0];
+      return typeof first === 'string' ? first.trim() || undefined : undefined;
+    }
+    return undefined;
   }
 }

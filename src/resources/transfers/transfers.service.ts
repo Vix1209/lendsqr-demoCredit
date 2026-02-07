@@ -15,6 +15,13 @@ import {
 } from 'src/common/constants/table-names.constants';
 import { generateId } from 'src/common/utils/customId.utils';
 import {
+  ID_PREFIX_BALANCE,
+  ID_PREFIX_LEDGER,
+  ID_PREFIX_TRANSACTION_INTENT,
+  ID_PREFIX_TRANSFER,
+  ID_PREFIX_TRANSFER_REFERENCE,
+} from 'src/common/constants/id-prefix.constants';
+import {
   TransactionIntentDirection,
   TransactionIntentStatus,
   TransactionIntentType,
@@ -60,9 +67,9 @@ export class TransfersService {
       throw new BadRequestException('Wallet currencies must match');
     }
 
-    const reference = generateId('TRF_REF');
-    const transactionIntentId = generateId('TXN_INTENT');
-    const transferId = generateId('TRF');
+    const reference = generateId(ID_PREFIX_TRANSFER_REFERENCE);
+    const transactionIntentId = generateId(ID_PREFIX_TRANSACTION_INTENT);
+    const transferId = generateId(ID_PREFIX_TRANSFER);
     const amountValue = amount.toFixed(2);
 
     const response = await this.knex.getDb().transaction(async (trx) => {
@@ -167,8 +174,8 @@ export class TransfersService {
         (receiverBefore + amount).toFixed(2),
       );
 
-      const debitEntryId = generateId('LEDGER');
-      const creditEntryId = generateId('LEDGER');
+      const debitEntryId = generateId(ID_PREFIX_LEDGER);
+      const creditEntryId = generateId(ID_PREFIX_LEDGER);
 
       await trx.table(LEDGER_ENTRIES_TABLE).insert([
         {
@@ -354,7 +361,7 @@ export class TransfersService {
       .where({ wallet_id: walletId })
       .first();
     if (!balance) {
-      const balanceId = generateId('bal');
+      const balanceId = generateId(ID_PREFIX_BALANCE);
       await trx.table(BALANCES_TABLE).insert({
         id: balanceId,
         wallet_id: walletId,

@@ -14,6 +14,15 @@ import {
   WALLETS_TABLE,
 } from 'src/common/constants/table-names.constants';
 import { generateId } from 'src/common/utils/customId.utils';
+import {
+  ID_PREFIX_BALANCE,
+  ID_PREFIX_FUNDING,
+  ID_PREFIX_FUNDING_REFERENCE,
+  ID_PREFIX_LEDGER,
+  ID_PREFIX_TRANSACTION_INTENT,
+  ID_PREFIX_USER,
+  ID_PREFIX_WALLET,
+} from 'src/common/constants/id-prefix.constants';
 import { AuditLogsService } from 'src/resources/audit-logs/audit-logs.service';
 import { AuditAction, EntityType } from 'src/tables/audit_log.table';
 import {
@@ -57,9 +66,9 @@ export class FundingService {
       throw new ForbiddenException('User is blacklisted');
     }
 
-    const reference = generateId('FND_REF');
-    const transactionIntentId = generateId('TXN_INTENT');
-    const fundingId = generateId('FND');
+    const reference = generateId(ID_PREFIX_FUNDING_REFERENCE);
+    const transactionIntentId = generateId(ID_PREFIX_TRANSACTION_INTENT);
+    const fundingId = generateId(ID_PREFIX_FUNDING);
     const amountValue = amount.toFixed(2);
     const provider = createFundingDto.provider;
 
@@ -168,8 +177,8 @@ export class FundingService {
         (clearingBefore - amount).toFixed(2),
       );
 
-      const creditEntryId = generateId('LEDGER');
-      const debitEntryId = generateId('LEDGER');
+      const creditEntryId = generateId(ID_PREFIX_LEDGER);
+      const debitEntryId = generateId(ID_PREFIX_LEDGER);
 
       await trx.table(LEDGER_ENTRIES_TABLE).insert([
         {
@@ -316,7 +325,7 @@ export class FundingService {
       .where({ email: this.clearingEmail })
       .first();
     if (!user) {
-      const userId = generateId('USER');
+      const userId = generateId(ID_PREFIX_USER);
       await trx.table(USERS_TABLE).insert({
         id: userId,
         email: this.clearingEmail,
@@ -333,7 +342,7 @@ export class FundingService {
       .where({ user_id: user.id, currency })
       .first();
     if (!wallet) {
-      const walletId = generateId('wal');
+      const walletId = generateId(ID_PREFIX_WALLET);
       await trx.table(WALLETS_TABLE).insert({
         id: walletId,
         user_id: user.id,
@@ -342,7 +351,7 @@ export class FundingService {
         status: WalletStatus.Active,
       });
       await trx.table(BALANCES_TABLE).insert({
-        id: generateId('bal'),
+        id: generateId(ID_PREFIX_BALANCE),
         wallet_id: walletId,
         available_balance: '0.00',
         pending_balance: '0.00',
@@ -359,7 +368,7 @@ export class FundingService {
       .where({ wallet_id: walletId })
       .first();
     if (!balance) {
-      const balanceId = generateId('bal');
+      const balanceId = generateId(ID_PREFIX_BALANCE);
       await trx.table(BALANCES_TABLE).insert({
         id: balanceId,
         wallet_id: walletId,
